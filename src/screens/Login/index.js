@@ -12,8 +12,11 @@ import api from '../../services/api';
 import md5 from 'md5';
 import {ContainerLoading} from './styles';
 import {API_KEY} from 'react-native-dotenv';
+import {useDispatch} from 'react-redux';
+import {loginRedux} from '../../actions/user';
 
 const Login = ({navigation}) => {
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState({
     id: null,
@@ -26,6 +29,10 @@ const Login = ({navigation}) => {
     email: '',
     password: '',
   });
+
+  function onLogin() {
+    dispatch(loginRedux({...user}));
+  }
 
   const handleLogin = async () => {
     setLoading(true);
@@ -46,7 +53,6 @@ const Login = ({navigation}) => {
         {id, resultado, erro, tprCodigo, pesCodigoEmpresa, usuImagem, usuNome},
       ],
     } = response.data;
-    console.log(result);
     setUser({
       id,
       erro,
@@ -58,6 +64,7 @@ const Login = ({navigation}) => {
     });
     setLoading(false);
     if (erro == 0) {
+      onLogin();
       navigation.navigate('Home');
     } else if (erro == 1) {
       Alert.alert(`${resultado}`, '');

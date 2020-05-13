@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {
-  Animated,
   Platform,
+  Animated,
   StatusBar,
   StyleSheet,
   Text,
@@ -13,12 +13,13 @@ import {
 import api from '../../services/api';
 import {ContainerLoading} from './styles';
 import {API_KEY} from 'react-native-dotenv';
+import {connect} from 'react-redux';
 
 const HEADER_MAX_HEIGHT = 300;
 const HEADER_MIN_HEIGHT = Platform.OS === 'ios' ? 60 : 73;
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
 
-export default class App extends Component {
+class index extends Component {
   constructor(props) {
     super(props);
 
@@ -39,26 +40,23 @@ export default class App extends Component {
   };
 
   componentDidMount() {
-    console.log(API_KEY);
     this.handleInfos();
   }
 
   buscaImagens = async () => {
     const response = await api.get(
-      `https://api.appbarber.com.br/pessoaImagem?api_key=${API_KEY}&id=771bf089b945d70d857a9b2e3776ce61&codigo=882438&tipo=1`,
+      `https://api.appbarber.com.br/pessoaImagem?api_key=${API_KEY}&id=771bf089b945d70d857a9b2e3776ce61&codigo=${this.props.pesCodigoEmpresa}&tipo=1`,
     );
     const {result} = response.data;
-    console.log(result[0].PIm_Imagem);
     this.setState({imagemEstabelecimento: result[0].PIm_Imagem});
   };
 
   buscaInfos = async () => {
     const response = await api.get(
-      `apresentacao?api_key=${API_KEY}&codigo=882438&tipo=1`,
+      `apresentacao?api_key=${API_KEY}&codigo=${this.props.pesCodigoEmpresa}&tipo=1`,
     );
     const {result} = response.data;
     this.setState({infos: result, loading: !this.state.loading});
-    console.log(result);
   };
 
   render() {
@@ -214,3 +212,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+const mapStateToProps = ({user}) => {
+  console.log(user);
+  return {
+    pesCodigoEmpresa: user.pesCodigoEmpresa,
+  };
+};
+
+export default connect(mapStateToProps, null)(index);
