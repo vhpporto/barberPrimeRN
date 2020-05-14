@@ -15,7 +15,9 @@ import api from '../../services/api';
 import {ContainerLoading} from './styles';
 import {API_KEY} from 'react-native-dotenv';
 import {connect} from 'react-redux';
+import Icon from 'react-native-vector-icons/Ionicons';
 
+Icon.loadFont();
 const HEADER_MAX_HEIGHT = 300;
 const HEADER_MIN_HEIGHT = Platform.OS === 'ios' ? 60 : 73;
 const HEADER_SCROLL_DISTANCE = HEADER_MAX_HEIGHT - HEADER_MIN_HEIGHT;
@@ -58,6 +60,7 @@ class index extends Component {
             ]}>
             Escolhe o serviço e agende seu horário
           </Text>
+
           <FlatList
             horizontal={true}
             showsHorizontalScrollIndicator={false}
