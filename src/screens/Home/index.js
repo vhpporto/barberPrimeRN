@@ -31,6 +31,8 @@ class index extends Component {
       infos: null,
       loading: true,
       imagemEstabelecimento: null,
+      apresentacao: null,
+      nomeBarbearia: null,
     };
   }
 
@@ -39,13 +41,65 @@ class index extends Component {
     await this.buscaInfos();
   };
 
+  renderInfo = () => {
+    return (
+      <View style={{width: '100%', alignSelf: 'center', padding: 10}}>
+        <View style={styles.containerInfo}>
+          <Text
+            style={{
+              alignSelf: 'flex-start',
+              margin: 10,
+              color: '#555',
+              fontSize: 24,
+              fontWeight: 'bold',
+            }}>
+            A barbearia
+          </Text>
+          <Text style={{color: '#999', textAlign: 'center'}}>
+            {this.state.apresentacao}
+          </Text>
+        </View>
+        <View style={styles.containerInfo}>
+          <Text
+            style={{
+              alignSelf: 'flex-start',
+              margin: 10,
+              color: '#555',
+              fontSize: 24,
+              fontWeight: 'bold',
+            }}>
+            A barbearia
+          </Text>
+          <Text style={{color: '#999', textAlign: 'center'}}>
+            {this.state.apresentacao}
+          </Text>
+        </View>
+        <View style={styles.containerInfo}>
+          <Text
+            style={{
+              alignSelf: 'flex-start',
+              margin: 10,
+              color: '#555',
+              fontSize: 24,
+              fontWeight: 'bold',
+            }}>
+            A barbearia
+          </Text>
+          <Text style={{color: '#999', textAlign: 'center'}}>
+            {this.state.apresentacao}
+          </Text>
+        </View>
+      </View>
+    );
+  };
+
   componentDidMount() {
     this.handleInfos();
   }
 
   buscaImagens = async () => {
     const response = await api.get(
-      `https://api.appbarber.com.br/pessoaImagem?api_key=${API_KEY}&id=771bf089b945d70d857a9b2e3776ce61&codigo=${this.props.pesCodigoEmpresa}&tipo=1`,
+      `https://api.appbarber.com.br/pessoaImagem?api_key=${API_KEY}&id=${this.props.id}&codigo=${this.props.pesCodigoEmpresa}&tipo=1`,
     );
     const {result} = response.data;
     this.setState({imagemEstabelecimento: result[0].PIm_Imagem});
@@ -56,7 +110,13 @@ class index extends Component {
       `apresentacao?api_key=${API_KEY}&codigo=${this.props.pesCodigoEmpresa}&tipo=1`,
     );
     const {result} = response.data;
-    this.setState({infos: result, loading: !this.state.loading});
+    console.log(result);
+    this.setState({
+      infos: result,
+      loading: !this.state.loading,
+      apresentacao: result[0].PAJ_Apresentacao,
+      nomeBarbearia: result[0].Pes_Nome,
+    });
   };
 
   render() {
@@ -83,7 +143,7 @@ class index extends Component {
 
     const titleScale = scrollY.interpolate({
       inputRange: [0, HEADER_SCROLL_DISTANCE / 2, HEADER_SCROLL_DISTANCE],
-      outputRange: [1, 1, 0.8],
+      outputRange: [1, 1, 0],
       extrapolate: 'clamp',
     });
     const titleTranslate = scrollY.interpolate({
@@ -131,7 +191,9 @@ class index extends Component {
           }}
           contentOffset={{
             y: -HEADER_MAX_HEIGHT,
-          }}></Animated.ScrollView>
+          }}>
+          {this.renderInfo()}
+        </Animated.ScrollView>
         <Animated.View
           pointerEvents="none"
           style={[styles.header, {transform: [{translateY: headerTranslate}]}]}>
@@ -153,7 +215,7 @@ class index extends Component {
               transform: [{scale: titleScale}, {translateY: titleTranslate}],
             },
           ]}>
-          <Text style={styles.title}>Title</Text>
+          <Text style={styles.title}>{this.state.nomeBarbearia}</Text>
         </Animated.View>
       </View>
     );
@@ -198,7 +260,16 @@ const styles = StyleSheet.create({
   },
   title: {
     color: 'white',
-    fontSize: 18,
+    fontSize: 26,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 4,
+    shadowRadius: 3.84,
+
+    elevation: 5,
   },
   scrollViewContent: {
     // iOS uses content inset, which acts like padding.
@@ -211,11 +282,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  containerInfo: {
+    backgroundColor: '#FFF',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });
 
 const mapStateToProps = ({user}) => {
   console.log(user);
   return {
+    id: user.id,
     pesCodigoEmpresa: user.pesCodigoEmpresa,
   };
 };

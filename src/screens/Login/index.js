@@ -30,8 +30,8 @@ const Login = ({navigation}) => {
     password: '',
   });
 
-  function onLogin() {
-    dispatch(loginRedux({...user}));
+  function onLogin(id, tprCodigo, usuImagem, pesCodigoEmpresa) {
+    dispatch(loginRedux({...user, id, tprCodigo, usuImagem, pesCodigoEmpresa}));
   }
 
   const handleLogin = async () => {
@@ -64,7 +64,7 @@ const Login = ({navigation}) => {
     });
     setLoading(false);
     if (erro == 0) {
-      onLogin();
+      onLogin(id, tprCodigo, usuImagem, pesCodigoEmpresa);
       navigation.navigate('Home');
     } else if (erro == 1) {
       Alert.alert(`${resultado}`, '');
