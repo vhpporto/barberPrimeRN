@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Text,
   View,
+  Image,
   RefreshControl,
   ActivityIndicator,
   FlatList,
@@ -33,60 +34,67 @@ class index extends Component {
       imagemEstabelecimento: null,
       apresentacao: null,
       nomeBarbearia: null,
+      servicos: null,
     };
   }
 
   handleInfos = async () => {
+    await this.buscaServicos();
     await this.buscaImagens();
     await this.buscaInfos();
   };
 
   renderInfo = () => {
     return (
-      <View style={{width: '100%', alignSelf: 'center', padding: 10}}>
-        <View style={styles.containerInfo}>
+      <View style={{width: '100%', alignSelf: 'center'}}>
+        <View style={[styles.containerInfo, {backgroundColor: '#000'}]}>
+          <Text style={[styles.textTitle, {color: '#FFF', fontWeight: '500'}]}>
+            Serviços
+          </Text>
           <Text
-            style={{
-              alignSelf: 'flex-start',
-              margin: 10,
-              color: '#555',
-              fontSize: 24,
-              fontWeight: 'bold',
-            }}>
-            A barbearia
+            style={[
+              styles.textTitle,
+              {color: '#FFF', fontSize: 16, fontWeight: '400'},
+            ]}>
+            Escolhe o serviço e agende seu horário
           </Text>
-          <Text style={{color: '#999', textAlign: 'center'}}>
-            {this.state.apresentacao}
-          </Text>
+          <FlatList
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            data={this.state.servicos}
+            renderItem={({item}) => {
+              return (
+                <View style={styles.containerService}>
+                  <Image source={{uri: item.Ser_Figura}} style={styles.image} />
+                  <Text style={styles.textServicoTitle} numberOfLines={2}>
+                    {item.Ser_Descricao}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.textServicoTitle,
+                      {fontSize: 10, textAlign: 'left', marginTop: 5},
+                    ]}
+                    numberOfLines={3}>
+                    {item.Ser_Observacao}
+                  </Text>
+                </View>
+              );
+            }}
+          />
         </View>
         <View style={styles.containerInfo}>
-          <Text
-            style={{
-              alignSelf: 'flex-start',
-              margin: 10,
-              color: '#555',
-              fontSize: 24,
-              fontWeight: 'bold',
-            }}>
-            A barbearia
-          </Text>
-          <Text style={{color: '#999', textAlign: 'center'}}>
-            {this.state.apresentacao}
-          </Text>
+          <Text style={styles.textTitle}>A barbearia</Text>
+          <Text style={styles.textInfo}>{this.state.apresentacao}</Text>
         </View>
         <View style={styles.containerInfo}>
-          <Text
-            style={{
-              alignSelf: 'flex-start',
-              margin: 10,
-              color: '#555',
-              fontSize: 24,
-              fontWeight: 'bold',
-            }}>
-            A barbearia
-          </Text>
-          <Text style={{color: '#999', textAlign: 'center'}}>
-            {this.state.apresentacao}
+          <Text style={styles.textTitle}>Endereço</Text>
+          <Text style={styles.textInfo}>{this.state.infos[0].Endereco}</Text>
+        </View>
+        <View style={styles.containerInfo}>
+          <Text style={styles.textTitle}>Contato</Text>
+          <Text style={styles.textInfo}>{this.state.infos[0].PAJ_Celular}</Text>
+          <Text style={styles.textInfo}>
+            {this.state.infos[0].PAJ_Telefone}
           </Text>
         </View>
       </View>
@@ -96,6 +104,15 @@ class index extends Component {
   componentDidMount() {
     this.handleInfos();
   }
+
+  buscaServicos = async () => {
+    const response = await api.get(
+      `/servicos/?api_key=${API_KEY}&id=${this.props.id}&dia=${14}&tipo=4`,
+    );
+    const {result} = response.data;
+    this.setState({servicos: result});
+    console.log(this.state.servicos);
+  };
 
   buscaImagens = async () => {
     const response = await api.get(
@@ -110,12 +127,11 @@ class index extends Component {
       `apresentacao?api_key=${API_KEY}&codigo=${this.props.pesCodigoEmpresa}&tipo=1`,
     );
     const {result} = response.data;
-    console.log(result);
     this.setState({
       infos: result,
-      loading: !this.state.loading,
       apresentacao: result[0].PAJ_Apresentacao,
       nomeBarbearia: result[0].Pes_Nome,
+      loading: !this.state.loading,
     });
   };
 
@@ -143,7 +159,7 @@ class index extends Component {
 
     const titleScale = scrollY.interpolate({
       inputRange: [0, HEADER_SCROLL_DISTANCE / 2, HEADER_SCROLL_DISTANCE],
-      outputRange: [1, 1, 0],
+      outputRange: [1, 1, 0.8],
       extrapolate: 'clamp',
     });
     const titleTranslate = scrollY.interpolate({
@@ -234,7 +250,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'transparent',
+    backgroundColor: '#000',
     overflow: 'hidden',
     height: HEADER_MAX_HEIGHT,
   },
@@ -283,11 +299,53 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   containerInfo: {
-    backgroundColor: '#FFF',
-    padding: 20,
-    borderRadius: 10,
+    // backgroundColor: '#FFF',
+    borderBottomWidth: 0.5,
+    borderColor: '#d8d8d8',
+    // padding: 20,
+    // borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    // shadowColor: '#000',
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 2,
+    // },
+    // shadowOpacity: 0.3,
+    // shadowRadius: 3.84,
+
+    // elevation: 5,
+  },
+  textTitle: {
+    alignSelf: 'flex-start',
+    margin: 10,
+    color: '#555',
+    fontSize: 24,
+    fontWeight: 'bold',
+  },
+  textInfo: {
+    color: '#888',
+    textAlign: 'center',
+    fontWeight: '400',
+    fontSize: 14,
+  },
+  containerService: {
+    margin: 10,
+    height: 290,
+    width: 210,
+    backgroundColor: '#FFF',
+    borderRadius: 10,
+  },
+  image: {
+    width: '100%',
+    height: '75%',
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  textServicoTitle: {
+    paddingLeft: 5,
+    color: '#555',
+    fontWeight: '400',
   },
 });
 
